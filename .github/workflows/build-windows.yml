@@ -1,0 +1,43 @@
+
+name: Build LTA Soundbank VST3
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-windows-vst3:
+    runs-on: windows-2022
+
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v4
+
+      - name: Configure JUCE project
+        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+
+      - name: Build Soundbank VST3
+        run: cmake --build build --config Release --target LTA_Soundbank_VST3 --parallel 4
+
+      - name: Package VST3
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $stage = Join-Path $PWD 'LTA_SOUNDBANK_VST3'
+          New-Item -ItemType Directory -Force -Path $stage | Out-Null
+
+          $plugins = @(Get-ChildItem -Path build -Directory -Recurse -Filter '*.vst3')
+
+          if ($plugins.Count -ne 1) {
+            throw "Expected one VST3 plugin, found $($plugins.Count)"
+          }
+
+          Copy-Item -LiteralPath $plugins[0].FullName -Destination $stage -Recurse -Force
+
+          Compress-Archive -Path (Join-Path $stage '*') -DestinationPath 'LTA_SOUNDBANK_Windows_VST3.zip' -Force
+
+      - name: Upload finished VST3
+        uses: actions/upload-artifact@v4
+        with:
+          name: LTA-SOUNDBANK-Windows-VST3
+          path: LTA_SOUNDBANK_Windows_VST3.zip
+          if-no-files-found: error
