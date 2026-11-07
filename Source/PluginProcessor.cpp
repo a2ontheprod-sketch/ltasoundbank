@@ -213,7 +213,7 @@ void LTASoundbankAudioProcessor::getStateInformation(juce::MemoryBlock& dest)
     juce::String f;
     for(int i=0;i<400;i++) if(isFavourite(i)) f+=juce::String(i)+",";
     root.setAttribute("favourites",f);
-   copyXmlToBinary(root,dest);
+    copyXmlToBinary(root,dest);
 }
 void LTASoundbankAudioProcessor::setStateInformation(const void* data,int size)
 {
@@ -402,4 +402,10 @@ void LTASoundbankAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,j
 juce::AudioProcessorEditor* LTASoundbankAudioProcessor::createEditor()
 {
     return new LTASoundbankAudioProcessorEditor(*this);
+}
+
+// JUCE VST3 wrapper entry point. This must be a global (non-member) function.
+juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
+{
+    return new LTASoundbankAudioProcessor();
 }
