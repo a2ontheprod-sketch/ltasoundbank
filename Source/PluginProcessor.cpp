@@ -213,11 +213,11 @@ void LTASoundbankAudioProcessor::getStateInformation(juce::MemoryBlock& dest)
     juce::String f;
     for(int i=0;i<400;i++) if(isFavourite(i)) f+=juce::String(i)+",";
     root.setAttribute("favourites",f);
-    juce::copyXmlToBinary(root,dest);
+   copyXmlToBinary(root,dest);
 }
 void LTASoundbankAudioProcessor::setStateInformation(const void* data,int size)
 {
-    if(auto root=juce::getXmlFromBinary(data,size))
+    if(auto root=getXmlFromBinary(data,size))
     {
         if(root->hasTagName("LTA_SOUNDBANK"))
         {
